@@ -1,5 +1,11 @@
 //=================== Back-End simulato ===================//
 import { Injectable } from '@angular/core';
+import { MatSort } from '@angular/material/sort';
+
+export interface UserData {
+  id: string;
+  name: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +14,7 @@ export class BackEndService {
 
   constructor() { }
 
-  elaborateData(data /* QUESTO DATA NON VERRA PASSATO AL BD IL QUALE INVECE USERA QUELLO SUO */: any, sort: any, currentPage: {pageIndex: number, pageSize: number}, currentFilter: string){
+  elaborateData(data /* QUESTO DATA NON VERRA PASSATO AL BD IL QUALE INVECE USERA QUELLO SUO */: UserData[], sort: MatSort, currentPage: {pageIndex: number, pageSize: number}, currentFilter: string){
 
     let filteredData = this.apiFiltro(data, currentFilter);
 
@@ -21,7 +27,7 @@ export class BackEndService {
     return {finalData: finalData, fullLength: fullLength};
   }
 
-  apiPaginator(data: any, pageData: {pageIndex: number, pageSize: number}){
+  apiPaginator(data: UserData[], pageData: {pageIndex: number, pageSize: number}){
 
     let fullLength = data.length;
 
@@ -33,7 +39,7 @@ export class BackEndService {
     return {data: data, fullLength: fullLength};
   }
 
-  apiFiltro(data: any, filtro: string) {
+  apiFiltro(data: UserData[], filtro: string) {
     let filteredData = data.filter((el: any) => {
       let res = false;
       for (const key in el) {
@@ -49,7 +55,7 @@ export class BackEndService {
     return filteredData;
   }
 
-  apiSort(data: any, sort: any) {
+  apiSort(data: UserData[], sort: MatSort) {
 
     let sort_active = 'id';
     let sort_direction = 'asc';

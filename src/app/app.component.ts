@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
   }
 
   applySort(sort: any) {
-    this.currentSort.next(sort);
+    this.currentSort.next(sort as MatSort);
   }
 
 }
