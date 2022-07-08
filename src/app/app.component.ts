@@ -4,6 +4,7 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import { BehaviorSubject, catchError, combineLatest, map, Observable, of, switchMap } from 'rxjs';
+import { BackEndService } from './services/back-end.service';
 import { TableService } from './services/table.service';
 
 export interface UserData {
@@ -21,7 +22,7 @@ export class AppComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name'];
   dataSource!: MatTableDataSource<UserData>;
 
-  data!: Observable<any[]>;
+  data!: Observable<any>;
 
   resultsLength = 0;
   isLoadingResults = true;
@@ -33,7 +34,7 @@ export class AppComponent implements OnInit {
 
   @ViewChild(MatSort, {static: false}) sort: MatSort = {} as MatSort;
 
-  constructor(private tableServ: TableService) { }
+  constructor(private tableServ: TableService, private backEnd: BackEndService) { }
 
   ngOnInit(): void {
 
@@ -45,18 +46,14 @@ export class AppComponent implements OnInit {
         return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
       }),
       map((data: any) => {
-        // Flip flag to show that loading has finished.
-        this.resultsLength = data.length;
 
-        if (this.currentPage.value.pageIndex !== 0) {
-          data.splice(0, (this.currentPage.value.pageIndex * this.currentPage.value.pageSize))
-        }
-        data.splice(this.pageSize, data.length)
+        let newData = this.backEnd.elaborateData(data, this.sort, this.currentPage.value, this.currentFilter.value)
 
+        this.resultsLength = newData.fullLength;
         this.isLoadingResults = false;
         this.isRateLimitReached = false;
 
-        return data;
+        return newData.finalData;
       }),
       catchError(() => {
         this.isLoadingResults = false;
