@@ -74,7 +74,6 @@ export class AppComponent implements OnInit {
   }
 
   changePageSize(size: number): void {
-    // size = Math.floor(Math.random() * (1 - 20 + 1) + 1)
     this.pageSize = size;
     this.currentPageSize.next(size);
   }
