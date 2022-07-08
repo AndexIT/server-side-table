@@ -39,11 +39,36 @@ export class BackEndService {
   }
 
   apiSort(data: any, sort: any) {
-    //TODO: fare funzione che ordini effettivamente
 
-    let sort_active = sort.active;
+    let sort_active = 'id';
+    let sort_direction = 'asc';
 
-    let sort_direction = sort.direction;
+    if (sort) {
+      sort_active = sort.active;
+      sort_direction = sort.direction;
+    }
+
+    data.sort((a: any, b: any) => {
+
+      if ((isNaN(a[sort_active]))) {
+
+        if (sort_direction === 'asc') {
+          return (a[sort_active] > b[sort_active]) ? 1 : ((b[sort_active] > a[sort_active]) ? -1 : 0)
+        } else {
+          return (a[sort_active] > b[sort_active]) ? -1 : ((b[sort_active] > a[sort_active]) ? 1 : 0)
+        }
+
+      } else {
+
+        if (sort_direction === 'asc') {
+          return (Number(a[sort_active]) > Number(b[sort_active])) ? 1 : -1;
+        } else {
+          return (Number(a[sort_active]) > Number(b[sort_active])) ? -1 : 1;
+        }
+
+      }
+
+    })
 
     return data;
   }
