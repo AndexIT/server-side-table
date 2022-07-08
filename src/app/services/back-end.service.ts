@@ -1,3 +1,4 @@
+//=================== Back-End simulato ===================//
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -6,7 +7,6 @@ import { Injectable } from '@angular/core';
 export class BackEndService {
 
   constructor() { }
-  //=================== Back-End simulato ===================//
 
   elaborateData(data_NON_SERVE_AL_BD: any, sort: any, currentPage: {pageIndex: number, pageSize: number}, currentFilter: string){
 
@@ -34,8 +34,19 @@ export class BackEndService {
   }
 
   apiFiltro(data: any, filtro: string) {
-    //TODO: fare funzione che filtri effettivamente
-    return data;
+    let filteredData = data.filter((el: any) => {
+      let res = false;
+      for (const key in el) {
+        if (Object.prototype.hasOwnProperty.call(el, key)) {
+          const property_value = el[key];
+          if (property_value.toLowerCase().includes(filtro)) {
+            res = true;
+          }
+        }
+      }
+      return res;
+    })
+    return filteredData;
   }
 
   apiSort(data: any, sort: any) {

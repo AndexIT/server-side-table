@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
 
   resultsLength = 0;
   isLoadingResults = true;
-  isRateLimitReached = false;
   pageSize = 10;
   currentPage = new BehaviorSubject<{pageIndex: number, pageSize: number}>({pageIndex: 0, pageSize: this.pageSize});
   currentFilter = new BehaviorSubject<string>("");
@@ -40,7 +39,6 @@ export class AppComponent implements OnInit {
 
     this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter])
     .pipe(
-      // startWith([undefined, ]),
       switchMap(([sortChange, currentPage, currentFilter]) => {
         this.isLoadingResults = true;
         return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
@@ -51,14 +49,11 @@ export class AppComponent implements OnInit {
 
         this.resultsLength = newData.fullLength;
         this.isLoadingResults = false;
-        this.isRateLimitReached = false;
 
         return newData.finalData;
       }),
       catchError(() => {
         this.isLoadingResults = false;
-        // Catch if the API has reached its rate limit. Return empty data.
-        this.isRateLimitReached = true;
         return of([]);
       })
     );
