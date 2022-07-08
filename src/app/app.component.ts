@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
   isRateLimitReached = false;
   pageSize = 10;
   currentPage = new BehaviorSubject<number>(1);
+  currentFilter = new BehaviorSubject<string>("");
   currentSort = new BehaviorSubject<MatSort>({} as MatSort);
 
 
@@ -38,12 +39,12 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.data = combineLatest([this.currentSort, this.currentPage])
+    this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter])
     .pipe(
       // startWith([undefined, ]),
-      switchMap(([sortChange, currentPage]) => {
+      switchMap(([sortChange, currentPage, currentFilter]) => {
         this.isLoadingResults = true;
-        return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage);
+        return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
       }),
       map((data: any) => {
         // Flip flag to show that loading has finished.
@@ -63,12 +64,8 @@ export class AppComponent implements OnInit {
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.currentFilter.next(filterValue);
   }
 
   changePage(pageNumber: number): void {

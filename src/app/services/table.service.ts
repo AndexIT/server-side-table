@@ -7,14 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class TableService {
 
-  constructor(private _httpClient: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
-  getNewData(sort: string, order: string, page: number): Observable<any> {
-    // return undefined;
-    const href = './assets/mockData.json';
-    const requestUrl =
-        `${href}?q=repo:angular/components&sort=${sort}&order=${order}&page=${page + 1}`;
-
-    return this._httpClient.get<any>(requestUrl);
+  getNewData(sort: string, order: string, page: number, filter: string): Observable<any> {
+    return this.http.get<any>('./assets/mockData.json');
   }
 }
