@@ -28,7 +28,8 @@
     </tr>
   </table>
 
-	<mat-paginator [length]="resultsLength" [pageSize]="5" matNativeControl
-		[pageSizeOptions]="[5, 10, 15, 20, 50, 100]">
+	<mat-paginator [length]="resultsLength" [pageSize]="pageSize" matNativeControl
+		[pageSizeOptions]="[5, 10, 15, 20, 50, 100]" (page)="changePageSize($event.pageSize)">
 	</mat-paginator>
+
 </div>

@@ -28,26 +28,27 @@ export class AppComponent implements OnInit {
   isRateLimitReached = false;
   pageSize = 10;
   currentPage = new BehaviorSubject<number>(1);
+  currentPageSize = new BehaviorSubject<number>(this.pageSize);
   currentFilter = new BehaviorSubject<string>("");
   currentSort = new BehaviorSubject<MatSort>({} as MatSort);
 
-
-  @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort: MatSort = {} as MatSort;
 
-  constructor(private http: HttpClient, private tableServ: TableService) { }
+  constructor(private tableServ: TableService) { }
 
   ngOnInit(): void {
 
-    this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter])
+    this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter, this.currentPageSize])
     .pipe(
       // startWith([undefined, ]),
-      switchMap(([sortChange, currentPage, currentFilter]) => {
+      switchMap(([sortChange, currentPage, currentFilter, pageSize]) => {
         this.isLoadingResults = true;
         return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
       }),
       map((data: any) => {
         // Flip flag to show that loading has finished.
+        data.splice(this.pageSize, data.length)
+
         this.isLoadingResults = false;
         this.isRateLimitReached = false;
         this.resultsLength = data.length;
@@ -56,7 +57,7 @@ export class AppComponent implements OnInit {
       }),
       catchError(() => {
         this.isLoadingResults = false;
-        // Catch if the GitHub API has reached its rate limit. Return empty data.
+        // Catch if the API has reached its rate limit. Return empty data.
         this.isRateLimitReached = true;
         return of([]);
       })
@@ -72,17 +73,15 @@ export class AppComponent implements OnInit {
     this.currentPage.next(pageNumber);
   }
 
+  changePageSize(size: number): void {
+    // size = Math.floor(Math.random() * (1 - 20 + 1) + 1)
+    this.pageSize = size;
+    this.currentPageSize.next(size);
+  }
+
   applySort(sort: any) {
     this.currentSort.next(sort);
   }
 
-  createRange(number: any){
-    let items: number[] = [];
-    let limit = this.resultsLength / this.pageSize;
-    for(let i = 1; i <= limit; i++){
-      items.push(i);
-    }
-    return items;
-  }
 }
 
