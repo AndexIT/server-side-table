@@ -3,6 +3,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
+import { BehaviorSubject, catchError, combineLatest, map, Observable, of, switchMap } from 'rxjs';
+import { TableService } from './services/table.service';
 
 export interface UserData {
   id: string;
@@ -19,17 +21,45 @@ export class AppComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name'];
   dataSource!: MatTableDataSource<UserData>;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  data!: Observable<any[]>;
 
-  constructor(private http: HttpClient) { }
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  pageSize = 10;
+  currentPage = new BehaviorSubject<number>(1);
+  currentSort = new BehaviorSubject<MatSort>({} as MatSort);
+
+
+  @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
+  @ViewChild(MatSort, {static: false}) sort: MatSort = {} as MatSort;
+
+  constructor(private http: HttpClient, private tableServ: TableService) { }
 
   ngOnInit(): void {
-    this.http.get<UserData[]>('./assets/mockData.json').subscribe((data: UserData[]) => {
-      this.dataSource = new MatTableDataSource(data);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    })
+
+    this.data = combineLatest([this.currentSort, this.currentPage])
+    .pipe(
+      // startWith([undefined, ]),
+      switchMap(([sortChange, currentPage]) => {
+        this.isLoadingResults = true;
+        return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage);
+      }),
+      map((data: any) => {
+        // Flip flag to show that loading has finished.
+        this.isLoadingResults = false;
+        this.isRateLimitReached = false;
+        this.resultsLength = data.length;
+
+        return data;
+      }),
+      catchError(() => {
+        this.isLoadingResults = false;
+        // Catch if the GitHub API has reached its rate limit. Return empty data.
+        this.isRateLimitReached = true;
+        return of([]);
+      })
+    );
   }
 
   applyFilter(event: Event) {
@@ -39,6 +69,23 @@ export class AppComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  changePage(pageNumber: number): void {
+    this.currentPage.next(pageNumber);
+  }
+
+  applySort(sort: any) {
+    this.currentSort.next(sort);
+  }
+
+  createRange(number: any){
+    let items: number[] = [];
+    let limit = this.resultsLength / this.pageSize;
+    for(let i = 1; i <= limit; i++){
+      items.push(i);
+    }
+    return items;
   }
 }
 

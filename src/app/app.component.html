@@ -3,8 +3,9 @@
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
 </mat-form-field>
 
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource" matSort>
+<div class="mat-elevation-z8" *ngIf="(data | async) as dataLoaded">
+  <table mat-table [dataSource]="dataLoaded" matSort matSortActive="created"
+  matSortDisableClear matSortDirection="desc" (matSortChange)="applySort($event)">
 
     <!-- ID Column -->
     <ng-container matColumnDef="id">
@@ -27,5 +28,7 @@
     </tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+	<mat-paginator [length]="resultsLength" [pageSize]="5" matNativeControl
+		[pageSizeOptions]="[5, 10, 15, 20, 50, 100]">
+	</mat-paginator>
 </div>
