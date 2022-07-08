@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
       }),
       map((data: any) => {
 
-        let newData = this.backEnd.elaborateData(data, this.sort, this.currentPage.value, this.currentFilter.value)
+        let newData = this.backEnd.elaborateData(data/* QUESTO DATA NON VERRA PASSATO AL BD */, this.sort, this.currentPage.value, this.currentFilter.value)
 
         this.resultsLength = newData.fullLength;
         this.isLoadingResults = false;
