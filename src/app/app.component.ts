@@ -27,8 +27,7 @@ export class AppComponent implements OnInit {
   isLoadingResults = true;
   isRateLimitReached = false;
   pageSize = 10;
-  currentPage = new BehaviorSubject<number>(1);
-  currentPageSize = new BehaviorSubject<number>(this.pageSize);
+  currentPage = new BehaviorSubject<{pageIndex: number, pageSize: number}>({pageIndex: 0, pageSize: this.pageSize});
   currentFilter = new BehaviorSubject<string>("");
   currentSort = new BehaviorSubject<MatSort>({} as MatSort);
 
@@ -38,20 +37,24 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter, this.currentPageSize])
+    this.data = combineLatest([this.currentSort, this.currentPage, this.currentFilter])
     .pipe(
       // startWith([undefined, ]),
-      switchMap(([sortChange, currentPage, currentFilter, pageSize]) => {
+      switchMap(([sortChange, currentPage, currentFilter]) => {
         this.isLoadingResults = true;
         return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
       }),
       map((data: any) => {
         // Flip flag to show that loading has finished.
+        this.resultsLength = data.length;
+
+        if (this.currentPage.value.pageIndex !== 0) {
+          data.splice(0, (this.currentPage.value.pageIndex * this.currentPage.value.pageSize))
+        }
         data.splice(this.pageSize, data.length)
 
         this.isLoadingResults = false;
         this.isRateLimitReached = false;
-        this.resultsLength = data.length;
 
         return data;
       }),
@@ -69,13 +72,9 @@ export class AppComponent implements OnInit {
     this.currentFilter.next(filterValue);
   }
 
-  changePage(pageNumber: number): void {
-    this.currentPage.next(pageNumber);
-  }
-
-  changePageSize(size: number): void {
-    this.pageSize = size;
-    this.currentPageSize.next(size);
+  changePageSize(page: any) {
+    this.pageSize = page.pageSize;
+    this.currentPage.next({pageIndex: page.pageIndex, pageSize: page.pageSize});
   }
 
   applySort(sort: any) {

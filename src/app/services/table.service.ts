@@ -9,7 +9,7 @@ export class TableService {
 
   constructor(private http: HttpClient) { }
 
-  getNewData(sort: string, order: string, page: number, filter: string): Observable<any> {
+  getNewData(sort: string, order: string, page: {pageIndex: number, pageSize: number}, filter: string): Observable<any> {
     return this.http.get<any>('./assets/mockData.json');
   }
 }
