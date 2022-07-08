@@ -8,9 +8,9 @@ export class BackEndService {
 
   constructor() { }
 
-  elaborateData(data /* QUESTO DATA NON VERRA PASSATO AL BD */: any, sort: any, currentPage: {pageIndex: number, pageSize: number}, currentFilter: string){
+  elaborateData(data /* QUESTO DATA NON VERRA PASSATO AL BD IL QUALE INVECE USERA QUELLO SUO */: any, sort: any, currentPage: {pageIndex: number, pageSize: number}, currentFilter: string){
 
-    let filteredData = this.apiFiltro(data /* QUESTO DATA NON VERRA PASSATO AL BD */, currentFilter);
+    let filteredData = this.apiFiltro(data, currentFilter);
 
     let dataPaginator_and_fullLength = this.apiPaginator(filteredData, currentPage)
 
