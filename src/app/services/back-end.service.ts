@@ -20,11 +20,11 @@ export class BackEndService {
 
     let fullLength = filteredData.length; /* recuperiamo lunghezza totale elementi o lunghezza elementi filtrati? */
 
-    let sortData = this.apiSort(filteredData, sort);
+    let dataPaginator = this.apiPaginator(filteredData, currentPage);
 
-    let dataPaginator = this.apiPaginator(sortData, currentPage);
+    let sortData = this.apiSort(dataPaginator, sort);
 
-    return {finalData: dataPaginator, fullLength: fullLength};
+    return {finalData: sortData, fullLength: fullLength};
   }
 
   apiPaginator(data: UserData[], pageData: {pageIndex: number, pageSize: number}){
