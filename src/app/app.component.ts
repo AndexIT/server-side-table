@@ -19,14 +19,17 @@ export interface UserData {
 export class AppComponent implements OnInit {
   title = 'server-side-table';
 
-  displayedColumns: string[] = ['id', 'name'];
   dataSource!: MatTableDataSource<UserData>;
 
   data!: Observable<any>;
 
+  displayedColumns: string[] = ['id', 'name'];
+
   resultsLength = 0;
-  isLoadingResults = true;
   pageSize = 10;
+
+  isLoadingResults = true;
+
   currentPage = new BehaviorSubject<{pageIndex: number, pageSize: number}>({pageIndex: 0, pageSize: this.pageSize});
   currentFilter = new BehaviorSubject<string>("");
   currentSort = new BehaviorSubject<MatSort>({} as MatSort);
@@ -41,14 +44,16 @@ export class AppComponent implements OnInit {
     .pipe(
       switchMap(([sortChange, currentPage, currentFilter]) => {
         this.isLoadingResults = true;
-        return this.tableServ.getNewData(this.sort.active, this.sort.direction, currentPage, currentFilter);
+        return this.tableServ.getNewData(sortChange, currentPage, currentFilter);
       }),
       map((data: any) => {
 
         let newData = this.backEnd.elaborateData(data/* QUESTO DATA NON VERRA PASSATO AL BD */, this.sort, this.currentPage.value, this.currentFilter.value)
 
         this.resultsLength = newData.fullLength;
-        this.isLoadingResults = false;
+        setTimeout(() => {
+          this.isLoadingResults = false;
+        }, 1000);
 
         return newData.finalData;
       }),
@@ -64,7 +69,7 @@ export class AppComponent implements OnInit {
     this.currentFilter.next(filterValue);
   }
 
-  changePageSize(page: any) {
+  applyPaginator(page: any) {
     this.pageSize = page.pageSize;
     this.currentPage.next({pageIndex: page.pageIndex, pageSize: page.pageSize});
   }

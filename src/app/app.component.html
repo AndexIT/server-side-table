@@ -1,9 +1,13 @@
+
 <mat-form-field appearance="standard">
   <mat-label>Filter</mat-label>
-  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. Mia" #input>
+  <input matInput (keyup)="applyFilter($event)" #input>
 </mat-form-field>
 
 <div class="mat-elevation-z8" *ngIf="(data | async) as dataLoaded">
+
+  <mat-spinner style="position: fixed; left: 45%; top: 25%;" [ngClass]="!isLoadingResults ? 'hidden' : 'visible'"></mat-spinner>
+
   <table mat-table [dataSource]="dataLoaded" matSort matSortActive="created"
   matSortDisableClear matSortDirection="desc" (matSortChange)="applySort($event)">
 
@@ -20,16 +24,17 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr [ngClass]="isLoadingResults ? 'hidden' : 'visible'" mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
     <!-- Row shown when there is no matching data. -->
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
     </tr>
+
   </table>
 
 	<mat-paginator [length]="resultsLength" [pageSize]="pageSize" matNativeControl
-		[pageSizeOptions]="[5, 10, 15, 20, 50, 100]" (page)="changePageSize($event)">
+		[pageSizeOptions]="[5, 10, 15, 20, 50, 100]" (page)="applyPaginator($event)">
 	</mat-paginator>
 
 </div>

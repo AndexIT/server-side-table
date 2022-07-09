@@ -18,25 +18,23 @@ export class BackEndService {
 
     let filteredData = this.apiFiltro(data, currentFilter);
 
-    let dataPaginator_and_fullLength = this.apiPaginator(filteredData, currentPage)
+    let fullLength = filteredData.length; /* recuperiamo lunghezza totale elementi o lunghezza elementi filtrati? */
 
-    let fullLength = dataPaginator_and_fullLength.fullLength;
+    let sortData = this.apiSort(filteredData, sort);
 
-    let finalData = this.apiSort(dataPaginator_and_fullLength.data, sort)
+    let dataPaginator = this.apiPaginator(sortData, currentPage);
 
-    return {finalData: finalData, fullLength: fullLength};
+    return {finalData: dataPaginator, fullLength: fullLength};
   }
 
   apiPaginator(data: UserData[], pageData: {pageIndex: number, pageSize: number}){
 
-    let fullLength = data.length;
-
     if (pageData.pageIndex !== 0) {
-      data.splice(0, (pageData.pageIndex * pageData.pageSize))
+      data.splice(0, (pageData.pageIndex * pageData.pageSize));
     }
-    data.splice(pageData.pageSize, data.length)
+    data.splice(pageData.pageSize, data.length);
 
-    return {data: data, fullLength: fullLength};
+    return data;
   }
 
   apiFiltro(data: UserData[], filtro: string) {
@@ -70,9 +68,9 @@ export class BackEndService {
       if ((isNaN(a[sort_active]))) {
 
         if (sort_direction === 'asc') {
-          return (a[sort_active] > b[sort_active]) ? 1 : ((b[sort_active] > a[sort_active]) ? -1 : 0)
+          return (a[sort_active] > b[sort_active]) ? 1 : ((b[sort_active] > a[sort_active]) ? -1 : 0);
         } else {
-          return (a[sort_active] > b[sort_active]) ? -1 : ((b[sort_active] > a[sort_active]) ? 1 : 0)
+          return (a[sort_active] > b[sort_active]) ? -1 : ((b[sort_active] > a[sort_active]) ? 1 : 0);
         }
 
       } else {
